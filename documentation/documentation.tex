@@ -403,9 +403,9 @@ Because flashing often requires multiple boots during the process, and the only 
 
 The execution syntax for AFT is
 \begin{lstlisting}
-aft <machinetype> <imagefile>
+aft <device model> <imagefile>
 \end{lstlisting}
-where, at the time of writing, the options for  \cmd{machinetype} are \cmd{gigabyte}, \cmd{galileov2}, \cmd{minnowboardmax}, \cmd{edison} and \cmd{beagleboneblack}. The imagefile is the image to be tested, with the exception of Beaglebone Black, where the argument is (mis)used to provide path to the directory with all the files that are required for flashing. It is recommended to use the current working directory for this, which allows using \cmd{`pwd`} as the parameter.
+where, at the time of writing, the options for  \cmd{device model} are \cmd{gigabyte}, \cmd{galileov2}, \cmd{minnowboardmax}, \cmd{edison} and \cmd{beagleboneblack}. The imagefile is the image to be tested, with the exception of Beaglebone Black, where the argument is (mis)used to provide path to the directory with all the files that are required for flashing. It is recommended to use the current working directory for this, which allows using \cmd{`pwd`} as the parameter.
 
 Optionally, AFT can also record the serial console output to file by using \cmd{-\/-record} argument, assuming the serial device has been configured properly. This allows some level of logging even if the device fails to boot.
 

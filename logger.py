@@ -13,8 +13,8 @@
 
 '''
 Functions for logging. This module was created so when 'aft --checkall' is used
-every machine gets its own [machine]_aft.log and [machine]_ssh.log instead
-of every machines logging to aft.log and ssh.log. When 'aft --checkall accurate'
+every device gets its own [device]_aft.log and [device]_ssh.log instead
+of every device logging to aft.log and ssh.log. When 'aft --checkall accurate'
 is used, logging messages will be written to same aft.log and ssh.log files.
 
 If new logger is needed, Logger.info()/.debug()/.warning()... makes new

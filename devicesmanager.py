@@ -38,8 +38,8 @@ class DevicesManager(object):
 
     __PLATFORM_FILE_NAME = "/etc/aft/devices/platform.cfg"
 
-    # Construct all device objects of the correct machine type based on the topology config file.
-    # args = parsed command line arguments
+    # Construct all device objects of the correct model, based on the
+    # topology config file. args = parsed command line arguments
     def __init__(self, args):
         """
         Constructor
@@ -172,17 +172,17 @@ class DevicesManager(object):
         devices = []
 
         for device_config in self.device_configs:
-            if device_config["model"].lower() == self._args.machine.lower():
+            if device_config["model"].lower() == self._args.model.lower():
                 cutter = devicefactory.build_cutter(device_config["settings"])
                 device = devicefactory.build_device(device_config["settings"], cutter)
                 devices.append(device)
 
         devices = self._remove_blacklisted_devices(devices)
 
-        return self._do_reserve(devices, self._args.machine, timeout)
+        return self._do_reserve(devices, self._args.model, timeout)
 
 
-    def reserve_specific(self, machine_name, timeout = 3600, model=None):
+    def reserve_specific(self, device_name, timeout = 3600, model=None):
         """
         Reserve and lock a specific device. If model is given, check if
         the device is the given model
@@ -192,7 +192,7 @@ class DevicesManager(object):
         # we just populate they devices array with a single device
         devices = []
         for device_config in self.device_configs:
-            if device_config["name"].lower() == machine_name.lower():
+            if device_config["name"].lower() == device_name.lower():
                 cutter = devicefactory.build_cutter(device_config["settings"])
                 device = devicefactory.build_device(device_config["settings"], cutter)
                 devices.append(device)
@@ -202,9 +202,9 @@ class DevicesManager(object):
         if model and len(devices):
             if not devices[0].model.lower() == model.lower():
                 raise errors.AFTConfigurationError(
-                    "Device and machine doesn't match")
+                    "Device and model doesn't match")
 
-        return self._do_reserve(devices, machine_name, timeout)
+        return self._do_reserve(devices, device_name, timeout)
 
 
     def _do_reserve(self, devices, name, timeout):
@@ -214,7 +214,7 @@ class DevicesManager(object):
         if len(devices) == 0:
             raise errors.AFTConfigurationError(
                 "No device configurations when reserving " + name +
-                " - check that given machine type or name is correct")
+                " - check that given model or device name is correct")
 
         start = time.time()
         while time.time() - start < timeout:

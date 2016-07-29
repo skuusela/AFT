@@ -106,13 +106,13 @@ def main(argv=None):
             recover_edisons(device_manager, args.verbose)
             return 0
 
-        if not args.machine:
-            print("Both machine and image must be specified")
+        if not args.model:
+            print("Both model and image must be specified")
             return 1
 
         if not args.noflash:
             if not args.file_name:
-                print("Both machine and image must be specified")
+                print("Both model and image must be specified")
                 return 1
 
             if not os.path.isfile(args.file_name):
@@ -162,9 +162,9 @@ def try_flash_specific(args, device_manager):
         device_manager: Device manager object
 
     Returns:
-        device, tester: Reserved machine and tester handles.
+        device, tester: Reserved device and tester handles.
     '''
-    device = device_manager.reserve_specific(args.device, model=args.machine)
+    device = device_manager.reserve_specific(args.device, model=args.model)
     tester = Tester(device)
 
     if args.record:
@@ -179,21 +179,21 @@ def try_flash_specific(args, device_manager):
 
 def try_flash_model(args, device_manager):
     '''
-    Reserve and flash a machine. By default it tries to flash 2 times with 2
-    different machines. If flashing fails machine will be blacklisted.
+    Reserve and flash a device. By default it tries to flash 2 times with 2
+    different devices. If flashing fails 2 times the device will be blacklisted.
 
     Args:
         args: AFT arguments
         device_manager: Device manager object
 
     Returns:
-        device, tester: Reserved machine and tester handles.
+        device, tester: Reserved device and tester handles.
     '''
-    machine_attempt = 0
-    machine_retries = args.machine_retries
+    device_attempt = 0
+    device_retries = args.device_retries
 
-    while machine_attempt < machine_retries:
-        machine_attempt += 1
+    while device_attempt < device_retries:
+        device_attempt += 1
 
         device = device_manager.reserve()
         tester = Tester(device)
@@ -233,8 +233,8 @@ def try_flash_model(args, device_manager):
                     common.blacklist_device(device.dev_id, device.name, msg)
                     device_manager.release(device)
 
-                    if machine_attempt < machine_retries:
-                        print("Attempting flashing another machine")
+                    if device_attempt < device_retries:
+                        print("Trying to flash another device")
 
                     else:
                         raise
@@ -265,7 +265,7 @@ def parse_args():
         default="/etc/aft/devices/topology.cfg")
 
     parser.add_argument(
-        "machine",
+        "model",
         action="store",
         nargs="?",
         help="Model type")
@@ -275,7 +275,7 @@ def parse_args():
         action="store",
         nargs="?",
         help = "Image to write: a local file, compatible with the selected " +
-        "machine."
+        "model."
         )
 
     parser.add_argument(
@@ -287,12 +287,12 @@ def parse_args():
         help="Specify the individual physical device by name.")
 
     parser.add_argument(
-        "--machine_retries",
+        "--device_retries",
         type=int,
         nargs="?",
         action="store",
         default="2",
-        help="Specify how many machines will be tried if flashing fails.")
+        help="Specify how many devices will be tried if flashing fails.")
 
     parser.add_argument(
         "--flash_retries",
@@ -300,7 +300,7 @@ def parse_args():
         nargs="?",
         action="store",
         default="2",
-        help="Specify how many time flashing one machine will be tried.")
+        help="Specify how many times flashing will be tried on one device .")
 
     parser.add_argument(
         "--record",
