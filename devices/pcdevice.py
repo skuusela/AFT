@@ -28,8 +28,6 @@ import aft.errors as errors
 import aft.tools.ssh as ssh
 import aft.devices.common as common
 
-from pem.main import main as pem_main
-
 VERSION = "0.1.0"
 
 # pylint: disable=too-many-instance-attributes
@@ -76,17 +74,18 @@ class PCDevice(Device):
     _SUPER_ROOT_MOUNT_POINT = "/mnt/super_target_root/"
 
 
-    def __init__(self, parameters, channel):
+    def __init__(self, parameters, channel, kb_emulator):
         """
         Constructor
 
         Args:
             parameters (Dictionary): Device configuration parameters
             channel (aft.Cutter): Power cutter object
+            kb_emulator (aft.kb_emulator): Keyboard emulator object
         """
 
         super(PCDevice, self).__init__(device_descriptor=parameters,
-                                       channel=channel)
+                                       channel=channel, kb_emulator=kb_emulator)
 
 
         self.retry_attempts = 4
@@ -96,8 +95,8 @@ class PCDevice(Device):
         self._service_mode_name = parameters["service_mode"]
         self._test_mode_name = parameters["test_mode"]
 
-        self.pem_interface = parameters["pem_interface"]
-        self.pem_port = parameters["pem_port"]
+
+
         self._test_mode = {
             "name": self._test_mode_name,
             "sequence": parameters["test_mode_keystrokes"]}
@@ -112,11 +111,6 @@ class PCDevice(Device):
 
         self.dev_ip = None
         self._uses_hddimg = None
-
-# pylint: disable=no-self-use
-
-
-# pylint: enable=no-self-use
 
     def write_image(self, file_name):
         """
@@ -199,7 +193,7 @@ class PCDevice(Device):
             logger.info(
                 "Executing PEM with keyboard sequence " + mode["sequence"])
 
-            self._send_PEM_keystrokes(mode["sequence"])
+            self.kb_emulator.send_keystrokes_from_file(mode["sequence"])
 
             ip_address = self._wait_for_responsive_ip()
 
@@ -215,59 +209,6 @@ class PCDevice(Device):
 
         raise errors.AFTDeviceError(
             "Could not set the device in mode " + mode["name"])
-
-
-    def _send_PEM_keystrokes(self, keystrokes, attempts=1, timeout=60):
-        """
-        Try to send keystrokes within the time limit
-
-        Args:
-            keystrokes (str): PEM keystroke file
-            attempts (integer): How many attempts will be made
-            timeout (integer): Timeout for a single attempt
-
-        Returns:
-            None
-
-        Raises:
-            aft.errors.AFTDeviceError if PEM connection times out
-
-        """
-        def call_pem(exceptions):
-            try:
-                pem_main(
-                [
-                    "pem",
-                    "--interface", self.pem_interface,
-                    "--port", self.pem_port,
-                    "--playback", keystrokes
-                ])
-            except Exception as err:
-                exceptions.put(err)
-
-        for i in range(attempts):
-            logger.info(
-                "Attempt " + str(i + 1) + " of " + str(attempts) + " to send " +
-                "keystrokes through PEM")
-
-            exception_queue = Queue()
-            process = Process(target=call_pem, args=(exception_queue,))
-            # ensure python process is closed in case main process dies but
-            # the subprocess is still waiting for timeout
-            process.daemon = True
-
-            process.start()
-            process.join(timeout)
-
-            if not exception_queue.empty():
-                raise exception_queue.get()
-
-            if process.is_alive():
-                process.terminate()
-            else:
-                return
-
-        raise errors.AFTDeviceError("Failed to connect to PEM")
 
     def _wait_for_responsive_ip(self):
         """
@@ -565,9 +506,8 @@ class PCDevice(Device):
         attempt_timeout = 60
 
         try:
-            self._send_PEM_keystrokes(
+            self.kb_emulator.send_keystrokes_from_file(
                 self._config_check_keystrokes,
-                attempts=attempts,
                 timeout=attempt_timeout)
         except errors.AFTDeviceError:
             raise errors.AFTConfigurationError(
@@ -658,7 +598,7 @@ class PCDevice(Device):
 
 
         try:
-            self._send_PEM_keystrokes(
+            self.kb_emulator.send_keystrokes_from_file(
                 self._config_check_keystrokes,
                 timeout=20)
         except errors.AFTDeviceError as err:

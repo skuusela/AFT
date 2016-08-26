@@ -132,7 +132,7 @@ class BeagleBoneBlackDevice(Device):
     _TEST_MODE_RETRY_ATTEMPTS = 4
 
 
-    def __init__(self, parameters, channel):
+    def __init__(self, parameters, channel, kb_emulator):
         """
         Constructor
 
@@ -146,7 +146,8 @@ class BeagleBoneBlackDevice(Device):
 
         super(BeagleBoneBlackDevice, self).__init__(
             device_descriptor=parameters,
-            channel=channel)
+            channel=channel,
+            kb_emulator=kb_emulator)
 
 
 
