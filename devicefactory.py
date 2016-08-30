@@ -38,11 +38,11 @@ _CUTTER_CLASSES = {
     "mockcutter"    : aft.cutters.mockcutter.Mockcutter
 }
 _KB_EMULATOR_CLASSES = {
-    "arduino_keyboard" : arduinokeyboard.ArduinoKeyboard,
-    "g_hid_keyboard"   : gadgetkeyboard.GadgetKeyboard
+    "arduinokeyboard" : arduinokeyboard.ArduinoKeyboard,
+    "gadgetkeyboard"   : gadgetkeyboard.GadgetKeyboard
 }
 
-def build_device(config, cutter, kb_emulator):
+def build_device(config, cutter, kb_emulator=None):
     """
     Construct a device instance of type config["platform"]
     """

@@ -16,7 +16,7 @@ Base class for peripheral emulators like mice and keyboards.
 """
 
 from aft.kb_emulators.kb_emulator import KeyboardEmulator
-from gadget_kb_emulator.keyboard_emulator import KeyboardEmulator as Emulator
+
 
 class GadgetKeyboard(KeyboardEmulator):
     """
@@ -26,10 +26,24 @@ class GadgetKeyboard(KeyboardEmulator):
 
     def __init__(self, config):
         super(GadgetKeyboard, self).__init__()
-        self.kb_emulator = Emulator(emulator_path=config["emulator_path"])
+
+        from gadget_kb_emulator.keyboard_emulator import KeyboardEmulator as Emulator
+        self.kb_emulator = Emulator(emulator_path=config["pem_port"])
 
     def send_keystrokes_from_file(self, _file, timeout=_TIMEOUT):
         """
         Method to send keystrokes from a file
         """
         self.kb_emulator.send_keystrokes_from_file(_file)
+
+    def send_keystrokes(self, lines):
+        """
+        Method to send lines argument as keystrokes. The lines argument needs
+        special syntax which is explained in gadget_kb_emulator in
+        def send_keystrokes():
+        Small example:
+
+            send_keystrokes("DELAY=0.1 \n \"Hello world\" \n <ENTER>")
+
+        """
+        self.kb_emulator.send_keystrokes(lines)

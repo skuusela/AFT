@@ -104,8 +104,13 @@ def get_leased_ip_addresses_for_mac(mac_address, leases_file_path):
     Returns:
         List of ip addresses. Each ip address is a string.
     """
-
     leases = get_mac_leases_from_dnsmasq(leases_file_path)
+
+    # If the testing setup has only one device return the first leases ip
+    # address (there should be only one)
+    if config.SINGLE_DEVICE_SETUP and len(leases):
+        return leases[0]["ip"]
+
     return [lease["ip"] for lease in leases if lease["mac"].lower() == mac_address.lower()]
 
 

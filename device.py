@@ -37,7 +37,7 @@ class Device(with_metaclass(abc.ABCMeta, object)):
 
     _POWER_CYCLE_DELAY = 10
 
-    def __init__(self, device_descriptor, channel, kb_emulator):
+    def __init__(self, device_descriptor, channel, kb_emulator=None):
         self.name = device_descriptor["name"]
         self.model = device_descriptor["model"]
         self.dev_id = device_descriptor["id"]

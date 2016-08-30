@@ -19,7 +19,6 @@ from multiprocessing import Process, Queue
 
 from aft.kb_emulators.kb_emulator import KeyboardEmulator
 import aft.errors as errors
-from pem.main import main as pem_main
 from aft.logger import Logger as logger
 
 class ArduinoKeyboard(KeyboardEmulator):
@@ -32,6 +31,7 @@ class ArduinoKeyboard(KeyboardEmulator):
 
     def __init__(self, config):
         super(ArduinoKeyboard, self).__init__()
+
         self.emulator_path = config["pem_port"]
         self.interface = config["pem_interface"]
 
@@ -57,6 +57,8 @@ class ArduinoKeyboard(KeyboardEmulator):
             aft.errors.AFTDeviceError if PEM connection times out
 
         """
+        from pem.main import main as pem_main
+
         def call_pem(exceptions):
             try:
                 pem_main(
