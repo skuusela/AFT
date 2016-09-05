@@ -335,38 +335,47 @@ class BeagleBoneBlackDevice(Device):
             for _ in range(counter):
                 serial_write(stream, " ", 0.1)
 
-            # if autoload is on, dhcp command attempts to download kernel
-            # as well. We do this later manually over tftp
-            serial_write(stream, "setenv autoload no", 1)
+            if config.SINGLE_DEVICE_SETUP:
+                # Load kernel image and device tree binary from usb
+                serial_write(stream, "setenv bootargs 'console=ttyO0,115200n8, root=/dev/sda1 rootwait rootfstype=ext4 rw'", 1)
+                serial_write(stream, "usb start", 5)
+                serial_write(stream, "ext4load usb 0:1 0x81000000 /boot/vmlinuz-4.4.9-ti-r25", 10)
+                serial_write(stream, "ext4load usb 0:1 0x80000000 /boot/dtbs/4.4.9-ti-r25/am335x-boneblack.dtb", 5)
 
-            # get ip from dhcp server
-            # NOTE: This seems to occasionally fail. This doesn't matter
-            # too much, as the next retry attempt propably works.
-            serial_write(stream, "dhcp", 15)
+            else:
+                # if autoload is on, dhcp command attempts to download kernel
+                # as well. We do this later manually over tftp
+                serial_write(stream, "setenv autoload no", 1)
 
-            # setup kernel boot arguments (nfs related args and console so that
-            # process is printed in case something goes wrong)
-            serial_write(
-                stream,
-                "setenv bootargs console=" + console +
-                ", root=/dev/nfs nfsroot=${serverip}:" +
-                self.nfs_path + ",vers=3 rw ip=${ipaddr}",
-                1)
+                # get ip from dhcp server
+                # NOTE: This seems to occasionally fail. This doesn't matter
+                # too much, as the next retry attempt propably works.
+                serial_write(stream, "dhcp", 15)
 
-            # download kernel image into the specified memory address
-            serial_write(
-                stream,
-                "tftp 0x81000000 " + os.path.join(tftp_path, kernel_image_path),
-                15)
+                # setup kernel boot arguments (nfs related args and console so that
+                # process is printed in case something goes wrong)
+                serial_write(
+                    stream,
+                    "setenv bootargs console=" + console +
+                    ", root=/dev/nfs nfsroot=${serverip}:" +
+                    self.nfs_path + ",vers=3 rw ip=${ipaddr}",
+                    1)
 
-            # download device tree binary into the specified memory location
-            # IMPORTANT NOTE: Make sure that the kernel image and device tree
-            # binary files do not end up overlapping in the memory, as this
-            # ends up overwriting one of the files and boot unsurprisingly fails
-            serial_write(
-                stream,
-                "tftp 0x80000000 " + os.path.join(tftp_path, dtb_path),
-                5)
+                # download kernel image into the specified memory address
+                serial_write(
+                    stream,
+                    "tftp 0x81000000 " + os.path.join(tftp_path, kernel_image_path),
+                    15)
+
+                # download device tree binary into the specified memory location
+                # IMPORTANT NOTE: Make sure that the kernel image and device tree
+                # binary files do not end up overlapping in the memory, as this
+                # ends up overwriting one of the files and boot unsurprisingly fails
+                serial_write(
+                    stream,
+                    "tftp 0x80000000 " + os.path.join(tftp_path, dtb_path),
+                    5)
+
 
             # boot, give kernel image and dtb as args (middle arg is ignored,
             # hence the '-')
