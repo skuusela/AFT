@@ -1,6 +1,7 @@
 # coding=utf-8
 # Copyright (c) 2016 Intel, Inc.
 # Author Erkka Kääriä <erkka.kaaria@intel.com>
+# Author Simo Kuusela <simo.kuusela@intel.com>
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -29,6 +30,7 @@ try:
 except ImportError:
     import subprocess as subprocess32
 
+from aft.tools.misc import local_execute
 from aft.logger import Logger as logger
 from aft.device import Device
 import aft.config as config
@@ -251,6 +253,11 @@ class BeagleBoneBlackDevice(Device):
 
         logger.info("Creating directories and copying image files")
 
+        if config.SINGLE_DEVICE_SETUP:
+            local_execute(["mount", "-o", "loop,offset=1048576",
+                          "/root/support_image/support.img",
+                          "/root/support_fs/beaglebone/"])
+
         common.make_directory(os.path.join(
             self.nfs_path,
             self.working_directory[1:]))
@@ -293,6 +300,8 @@ class BeagleBoneBlackDevice(Device):
             ssh_file,
             os.path.join(self.nfs_path, self.ssh_file[1:]))
 
+        if config.SINGLE_DEVICE_SETUP:
+            local_execute(["umount", "/root/support_fs/beaglebone"])
 
     def _enter_service_mode(self):
         """
