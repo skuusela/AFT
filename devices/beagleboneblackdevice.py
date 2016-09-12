@@ -612,7 +612,11 @@ class BeagleBoneBlackDevice(Device):
         """
         Remove the temp directory  used during flashing
         """
-        shutil.rmtree(os.path.join(
+        if config.SINGLE_DEVICE_SETUP:
+            ssh.remote_execute(self.dev_ip,
+                              ["rm", "-r", self.working_directory])
+        else:
+            shutil.rmtree(os.path.join(
                 self.nfs_path,
                 self.working_directory[1:]))
 
