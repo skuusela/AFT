@@ -34,7 +34,7 @@ import aft.errors as errors
 import aft.tools.misc as misc
 import aft.tools.ssh as ssh
 import aft.devices.common as common
-
+import aft.config as config
 
 
 
@@ -205,9 +205,16 @@ class EdisonDevice(Device):
             root_file_system_file = file_name_no_extension + "." + \
                 self._root_extension
 
-            # guestmount allows us to mount the image without root privileges
-            subprocess32.check_call(
-                ["guestmount", "-a", root_file_system_file, "-m", "/dev/sda", self._LOCAL_MOUNT_DIR])
+            if config.SINGLE_DEVICE_SETUP:
+                subprocess32.check_call(["mount",
+                                         root_file_system_file,
+                                         self._LOCAL_MOUNT_DIR])
+
+            else:
+                # guestmount allows us to mount the image without root privileges
+                subprocess32.check_call(["guestmount", "-a", root_file_system_file,
+                                         "-m", "/dev/sda",
+                                         self._LOCAL_MOUNT_DIR])
         except subprocess32.CalledProcessError as err:
             logger.info("Failed to mount.")
             common.log_subprocess32_error_and_abort(err)
@@ -328,9 +335,13 @@ class EdisonDevice(Device):
         logger.info("Flushing and unmounting the root filesystem.")
         try:
             subprocess32.check_call(["sync"])
-            subprocess32.check_call([
-                "guestunmount",
-                os.path.join(os.curdir,self._LOCAL_MOUNT_DIR)])
+            if config.SINGLE_DEVICE_SETUP:
+                subprocess32.check_call(["umount",
+                                         self._LOCAL_MOUNT_DIR])
+            else:
+                subprocess32.check_call([
+                    "guestunmount",
+                    os.path.join(os.curdir,self._LOCAL_MOUNT_DIR)])
 
         except subprocess32.CalledProcessError as err:
             common.log_subprocess32_error_and_abort(err)
