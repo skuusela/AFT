@@ -23,6 +23,7 @@ import aft.devices.virtualboxdevice
 import aft.cutters.clewarecutter
 import aft.cutters.usbrelay
 import aft.cutters.mockcutter
+import aft.cutters.gpiocutter
 import aft.kb_emulators.arduinokeyboard as arduinokeyboard
 import aft.kb_emulators.gadgetkeyboard as gadgetkeyboard
 
@@ -35,7 +36,8 @@ _DEVICE_CLASSES = {
 _CUTTER_CLASSES = {
     "clewarecutter" : aft.cutters.clewarecutter.ClewareCutter,
     "usbrelay"      : aft.cutters.usbrelay.Usbrelay,
-    "mockcutter"    : aft.cutters.mockcutter.Mockcutter
+    "mockcutter"    : aft.cutters.mockcutter.Mockcutter,
+    "gpiocutter"    : aft.cutters.gpiocutter.GpioCutter
 }
 _KB_EMULATOR_CLASSES = {
     "arduinokeyboard" : arduinokeyboard.ArduinoKeyboard,
