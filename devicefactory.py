@@ -24,6 +24,7 @@ import aft.cutters.clewarecutter
 import aft.cutters.usbrelay
 import aft.cutters.mockcutter
 import aft.kb_emulators.arduinokeyboard
+import aft.kb_emulators.gadgetkeyboard
 
 _DEVICE_CLASSES = {
     "beagleboneblack" : aft.devices.beagleboneblackdevice.BeagleBoneBlackDevice,
@@ -38,6 +39,7 @@ _CUTTER_CLASSES = {
 }
 _KB_EMULATOR_CLASSES = {
     "arduinokeyboard" : aft.kb_emulators.arduinokeyboard.ArduinoKeyboard,
+    "gadgetkeyboard"  : aft.kb_emulators.gadgetkeyboard.GadgetKeyboard,
 }
 
 def build_kb_emulator(config):
