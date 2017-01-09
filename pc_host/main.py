@@ -191,7 +191,7 @@ def execute_testing(bb_dut, args, config):
     try:
         output = remote_execute(bb_dut["bb_ip"],
                                 ["cd", "/root/workspace" + current_dir,";aft",
-                                dut, args.image_file, record, "--noflash"],
+                                dut, record, "--noflash"],
                                 timeout=2400, config = config)
 
     finally:
